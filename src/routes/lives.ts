@@ -43,6 +43,7 @@ lives.post('/notify', async (ctx, next) => {
 
     if (videoId === notifiedVideoId) {
       ctx.body = 'すでに通知済みの配信です'
+      ctx.status = 200
       return
     }
 
@@ -66,6 +67,7 @@ lives.post('/notify', async (ctx, next) => {
       fs.writeFileSync(VIDEO_ID_FILE, videoId)
 
       ctx.body = '通知完了'
+      ctx.status = 200
     }
   } catch (error) {
     console.warn(error)
