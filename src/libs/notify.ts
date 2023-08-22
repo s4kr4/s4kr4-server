@@ -13,7 +13,7 @@ const postToMastodon = async (text: string) => {
       status: text,
       visibility: 'public'
     }
-    await axios.post(MASTODON_API_URL, params)
+    await axios.post(`${MASTODON_API_URL}/statuses`, params)
   } catch (error) {
     console.warn(error)
     throw Error('マストドンへの投稿に失敗しました')
