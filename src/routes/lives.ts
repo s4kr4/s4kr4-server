@@ -1,7 +1,13 @@
 import Router from '@koa/router'
 import Parser from 'rss-parser'
+import axios from 'axios'
+import fs from 'fs'
+import { getVideoId } from '../libs/files'
+import { postToMastodon } from '../libs/notify'
 
-const FEED_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${process.env.YOUTUBE_CHANNEL_ID}`
+const { YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY, YOUTUBE_API_URL } = process.env
+const FEED_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`
+const VIDEO_ID_FILE = `${process.cwd()}/video_id`
 
 const parser = new Parser()
 const lives = new Router()
@@ -19,6 +25,47 @@ lives.get('/data', async (ctx, next) => {
 
     ctx.body = {
       data: entries,
+    }
+  } catch (error) {
+    console.warn(error)
+  }
+})
+
+/**
+ * 配信通知
+ * @param {string} videoId - 通知をしたい配信のID
+ */
+lives.post('/notify', async (ctx, next) => {
+  try {
+    const { videoId } = ctx.request.body
+
+    const notifiedVideoId = getVideoId()
+
+    if (videoId === notifiedVideoId) {
+      ctx.body = 'すでに通知済みの配信です'
+      return
+    }
+
+    const params = {
+      key: YOUTUBE_API_KEY,
+      part: 'snippet',
+      id: videoId,
+      fields: 'items/snippet(title,liveBroadcastContent)'
+    }
+
+    // 指定の配信の情報を取得
+    const { data: videos }: any = await axios.get(`${YOUTUBE_API_URL}/videos`, {
+      params
+    })
+    const { title, liveBroadcastContent } = videos.items[0].snippet
+
+    if (liveBroadcastContent === 'live') {
+      await postToMastodon('sample post')
+
+      // 最後に通知した配信のIDを記録する
+      fs.writeFileSync(VIDEO_ID_FILE, videoId)
+
+      ctx.body = '通知完了'
     }
   } catch (error) {
     console.warn(error)
