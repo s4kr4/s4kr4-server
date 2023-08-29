@@ -40,8 +40,14 @@ const postToBluesky = async (text: string) => {
     password: BLUESKY_APP_PASSWORD,
   })
 
-  await agent.post({
+  const richText = new RichText({
     text,
+  })
+  await richText.detectFacets(agent)
+
+  await agent.post({
+    text: richText.text,
+    facets: richText.facets,
   })
 }
 
