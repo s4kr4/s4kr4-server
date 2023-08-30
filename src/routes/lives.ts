@@ -4,6 +4,8 @@ import axios from 'axios'
 import fs from 'fs'
 import { getVideoId } from '../libs/files'
 import { postToMastodon } from '../libs/notify'
+import { getPostText } from '../libs/texts'
+import Bluesky from '../libs/Bluesky'
 
 const { YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY, YOUTUBE_API_URL } = process.env
 const FEED_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`
@@ -42,7 +44,9 @@ lives.post('/notify', async (ctx, next) => {
     const notifiedVideoId = getVideoId()
 
     if (videoId === notifiedVideoId) {
-      ctx.body = 'すでに通知済みの配信です'
+      ctx.body = {
+        message: 'すでに通知済みの配信です',
+      }
       ctx.status = 200
       return
     }
@@ -61,12 +65,22 @@ lives.post('/notify', async (ctx, next) => {
     const { title, liveBroadcastContent } = videos.items[0].snippet
 
     if (liveBroadcastContent === 'live') {
-      await postToMastodon('sample post')
+
+      const postText = getPostText(title, videoId)
+
+      const bskyAgent = new Bluesky()
+      await bskyAgent.login()
+      await Promise.all([
+        postToMastodon(postText),
+        bskyAgent.post(postText)
+      ])
 
       // 最後に通知した配信のIDを記録する
       fs.writeFileSync(VIDEO_ID_FILE, videoId)
 
-      ctx.body = '通知完了'
+      ctx.body = {
+        message: '通知完了'
+      }
       ctx.status = 200
     }
   } catch (error) {
