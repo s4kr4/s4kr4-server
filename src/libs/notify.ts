@@ -1,12 +1,8 @@
 import axios from 'axios'
-import { BskyAgent, RichText } from '@atproto/api'
 
 const {
   MASTODON_API_URL,
   MASTODON_TOKEN,
-  BLUESKY_API_URL,
-  BLUESKY_IDENTIFIER,
-  BLUESKY_APP_PASSWORD,
 } = process.env
 
 /**
@@ -27,32 +23,8 @@ const postToMastodon = async (text: string) => {
   }
 }
 
-/**
- * Blueskyにポストする
- * @param {string} text - 投稿本文
- */
-const postToBluesky = async (text: string) => {
-  const agent = new BskyAgent({
-    service: BLUESKY_API_URL
-  })
-  await agent.login({
-    identifier: BLUESKY_IDENTIFIER,
-    password: BLUESKY_APP_PASSWORD,
-  })
-
-  const richText = new RichText({
-    text,
-  })
-  await richText.detectFacets(agent)
-
-  await agent.post({
-    text: richText.text,
-    facets: richText.facets,
-  })
-}
 
 export {
   postToMastodon,
-  postToBluesky,
 }
 
