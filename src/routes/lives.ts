@@ -82,6 +82,11 @@ lives.post('/notify', async (ctx, next) => {
         message: '通知完了'
       }
       ctx.status = 200
+    } else if (liveBroadcastContent === 'upcoming') {
+      ctx.body = {
+        message: '開始前の配信です'
+      }
+      ctx.status = 200
     }
   } catch (error) {
     console.warn(error)
