@@ -1,11 +1,12 @@
 import Router from '@koa/router'
 import lives from './lives'
-import pingRouter from './ping'
 
 const router = new Router()
 
-router.use('/api', pingRouter.routes())
-router.use('/api', lives.routes())
+router.get('/ping', (ctx) => {
+    ctx.body = 'pong'
+    ctx.status = 200
+})
 
 export default router
 
