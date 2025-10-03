@@ -1,6 +1,6 @@
-import { RichText } from '@atproto/api';
-import ogs from 'open-graph-scraper';
-import sharp from 'sharp';
+import { RichText } from "@atproto/api";
+import ogs from "open-graph-scraper";
+import sharp from "sharp";
 
 export type OgInfo = {
   siteUrl: string;
@@ -13,17 +13,17 @@ export type OgInfo = {
 
 export const findUrlInRichText = (richText: RichText): string | null => {
   if (!richText.facets || richText.facets.length < 1) {
-    return null
+    return null;
   }
 
   for (const facet of richText.facets) {
     if (facet.features.length < 1) {
-      continue
+      continue;
     }
 
     for (const feature of facet.features) {
       if (feature.$type != "app.bsky.richtext.facet#link") {
-        continue
+        continue;
       } else if (feature.uri == null) {
         continue;
       }
@@ -32,7 +32,7 @@ export const findUrlInRichText = (richText: RichText): string | null => {
     }
   }
   return null;
-}
+};
 
 /**
  * 指定したURLのOGP情報を取得する
@@ -40,27 +40,27 @@ export const findUrlInRichText = (richText: RichText): string | null => {
  * @returns {OgInfo} - OGP情報
  */
 export const getOgInfo = async (url: string): Promise<OgInfo | null> => {
-  const { result } = await ogs({ url })
+  const { result } = await ogs({ url });
 
-  const image = result.ogImage?.at(0)
+  const image = result.ogImage?.at(0);
   if (!image) {
-    return null
+    return null;
   }
 
-  const imageRes = await fetch(image.url)
-  const buffer = await imageRes.arrayBuffer()
+  const imageRes = await fetch(image.url);
+  const buffer = await imageRes.arrayBuffer();
 
   const compressedImage = await sharp(buffer)
-    .resize(800, null, { fit: 'inside', withoutEnlargement: true })
-    .jpeg({ quality: 80, progressive: true})
-    .toBuffer()
+    .resize(800, null, { fit: "inside", withoutEnlargement: true })
+    .jpeg({ quality: 80, progressive: true })
+    .toBuffer();
 
   return {
     siteUrl: url,
     ogImageUrl: image.url,
-    type: image.type || '',
-    description: result.ogDescription || '',
-    title: result.ogTitle || '',
-    imageData: new Uint8Array(compressedImage)
-  }
-}
+    type: image.type || "",
+    description: result.ogDescription || "",
+    title: result.ogTitle || "",
+    imageData: new Uint8Array(compressedImage),
+  };
+};

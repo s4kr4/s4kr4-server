@@ -1,9 +1,6 @@
-import axios from 'axios'
+import axios from "axios";
 
-const {
-  MASTODON_API_URL,
-  MASTODON_TOKEN,
-} = process.env
+const { MASTODON_API_URL, MASTODON_TOKEN } = process.env;
 
 /**
  * Mastodonにポストする
@@ -14,17 +11,13 @@ const postToMastodon = async (text: string) => {
     const params = {
       access_token: MASTODON_TOKEN,
       status: text,
-      visibility: 'public'
-    }
-    await axios.post(`${MASTODON_API_URL}/statuses`, params)
+      visibility: "public",
+    };
+    await axios.post(`${MASTODON_API_URL}/statuses`, params);
   } catch (error) {
-    console.warn(error)
-    throw Error('マストドンへの投稿に失敗しました')
+    console.warn(error);
+    throw Error("マストドンへの投稿に失敗しました");
   }
-}
+};
 
-
-export {
-  postToMastodon,
-}
-
+export { postToMastodon };

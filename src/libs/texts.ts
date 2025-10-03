@@ -3,10 +3,7 @@ const getPostText = (title: string, videoId: string) => {
 配信を開始しました。
 ${title}
 https://youtu.be/${videoId}
-`
-}
+`;
+};
 
-export {
-  getPostText,
-}
-
+export { getPostText };
