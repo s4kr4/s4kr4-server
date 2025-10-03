@@ -15,7 +15,6 @@ const parser = new Parser()
 const lives = new Router()
 
 lives.get('/data', async (ctx, next) => {
-
   try {
     const feed = await parser.parseURL(FEED_URL)
     const entries = feed.items.map((entry) => {
