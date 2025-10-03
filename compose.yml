@@ -2,7 +2,11 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      # ローカルホストのみにバインド（外部からのアクセスを防ぐ）
+      # nginxリバースプロキシ経由でのみアクセス可能
+      - "127.0.0.1:3000:3000"
+    networks:
+      - app-network
     environment:
       - NODE_ENV=production
     env_file:
@@ -11,3 +15,7 @@ services:
     volumes:
       - ./src:/app/src
       - /app/node_modules
+
+networks:
+  app-network:
+    external: true
