@@ -1,19 +1,20 @@
-import Koa from 'koa'
-import json from 'koa-json'
+import Fastify from 'fastify'
+import cors from '@fastify/cors'
 import 'dotenv/config'
-import cors from '@koa/cors'
-import koaBody from 'koa-body'
-import router from './routes'
+import routes from './routes'
 
-const app = new Koa()
+const fastify = Fastify({
+  logger: true
+})
 
-app.use(json())
+fastify.register(cors)
+fastify.register(routes, { prefix: '/api' })
 
-app
-  .use(cors())
-  .use(koaBody())
-  .use(router.routes())
-  .use(router.allowedMethods())
-
-app.listen(3000)
+fastify.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
+  if (err) {
+    fastify.log.error(err)
+    process.exit(1)
+  }
+  fastify.log.info(`Server listening at ${address}`)
+})
 

@@ -1,11 +1,11 @@
-import Router from '@koa/router'
+import { FastifyPluginAsync } from 'fastify'
 import lives from './lives'
 import pingRouter from './ping'
 
-const router = new Router()
+const routes: FastifyPluginAsync = async (fastify, opts) => {
+  fastify.register(pingRouter)
+  fastify.register(lives)
+}
 
-router.use('/api', pingRouter.routes())
-router.use('/api', lives.routes())
-
-export default router
+export default routes
 
